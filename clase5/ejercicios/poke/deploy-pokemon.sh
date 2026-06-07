@@ -15,10 +15,10 @@ NC='\033[0m' # No Color
 
 ###funciones de logger error
 log_error() {    
-    echo -e "${RED}ERROR: $1${NC}" >&2
+    echo -e "${RED}ERROR: $1${NC}" 
 }   
 log_warning() {    
-    echo -e "${YELLOW}ADVERTENCIA: $1${NC}" >&2
+    echo -e "${YELLOW}ADVERTENCIA: $1${NC}" 
 }
 log_success() {    
     echo -e "${GREEN}ÉXITO: $1${NC}"
@@ -39,19 +39,20 @@ then
     sudo systemctl enable nginx
     log_success "NGINX INSTALADO Y EN EJECUCIÓN."
 else
-   log_success "NGINX YA ESTÁ INSTALADON."
+   log_success "NGINX YA ESTÁ INSTALADO."
 fi
 
 #2-CREAR DIRECTORIO DE LA APLICACIÓN
-
-sudo mkdir -p ${APP_DIR}
-log_success "DIRECTORIO ${APP_DIR} CREADO."
-#sudo chown -R $USER:$USER ${APP_DIR}
+if [ -d "${APP_DIR}" ]; then
+    log_warning "El directorio ${APP_DIR} ya existe.Se  sobreescribirá su contenido."
+else 
+    log_info "Creando el directorio ${APP_DIR}..."
+    sudo mkdir -p ${APP_DIR}
+fi
 
 #3- COPIAR ARCHIVOS DE LA APLICACIÓN AL DIRECTORIO
 sudo cp -r ./* ${APP_DIR}/
 log_success "ARCHIVOS DE LA APLICACIÓN COPIADOS A ${APP_DIR}."
-#rsync -a ./ "$APP_DIR/"
 
 #3- PERMISOS DE LOS ARCHIVOS EN LA RUTA DE LA APLICACIÓN
 sudo chown -R www-data:www-data ${APP_DIR}
@@ -72,11 +73,9 @@ server {
 }
 EOL
 
-# sudo rm /etc/nginx/sites-enabled/${APP_NAME}
 
 ### echo "================================"
 #5-ACTIVAR LA CONFIGURACIÓN DE NGINX
-# sudo ln -s ${NGINX_DIR} /etc/nginx/sites-enabled
 
 #5 VALIDAR LA CONFIGURACIÓN DE NGINX
 log_info "Validando la configuración de NGINX..."
