@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<!-- =========================================================================
+  index.html - Pokémon Game - Aplicación Web
+  =========================================================================
+  Aplicación SPA (Single Page Application) que consume la PokeAPI para
+  mostrar, buscar, filtrar y capturar Pokémon. Incluye modo batalla y
+  Pokédex local usando localStorage.
+
+  Tecnologías:
+    - TailwindCSS (CDN) para estilos utilitarios
+    - JavaScript modular (ES Modules) sin frameworks
+    - PokeAPI como fuente de datos
+    - Hash routing para navegación SPA
+    - localStorage para persistencia de Pokédex
+  ========================================================================= -->
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokémon Game - Atrapa todos</title>
+  <meta name="description" content="Aplicación web estilo juego de Pokémon con búsqueda, filtros, batallas y Pokédex">
+
+  <!-- TailwindCSS vía CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // -----------------------------------------------------------------------
+    // Configuración de Tailwind: modo oscuro por clase y colores personalizados
+    // -----------------------------------------------------------------------
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary:  { 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb' },
+            electric: '#F8D030',
+            fire:     '#F08030',
+            water:    '#6890F0',
+            grass:    '#78C850',
+            psychic:  '#F85888',
+            ghost:    '#705898',
+            dark:     '#705848',
+            steel:    '#B8B8D0',
+            fairy:    '#EE99AC',
+            normal:   '#A8A878',
+            fighting: '#C03028',
+            flying:   '#A890F0',
+            poison:   '#A040A0',
+            ground:   '#E0C068',
+            rock:     '#B8A038',
+            bug:      '#A8B820',
+            ice:      '#98D8D8',
+            dragon:   '#7038F8',
+          },
+          animation: {
+            'bounce-slow':  'bounce 2s infinite',
+            'pulse-slow':   'pulse 3s infinite',
+            'fade-in':      'fadeIn 0.3s ease-out',
+            'slide-up':     'slideUp 0.3s ease-out',
+            'shake':        'shake 0.5s ease-in-out',
+            'sparkle':      'sparkle 0.6s ease-out',
+          },
+          keyframes: {
+            fadeIn:   { '0%': { opacity: '0' },   '100%': { opacity: '1' } },
+            slideUp:  { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+            shake:    { '0%,100%': { transform: 'translateX(0)' }, '25%': { transform: 'translateX(-8px)' }, '75%': { transform: 'translateX(8px)' } },
+            sparkle:  { '0%': { transform: 'scale(0) rotate(0deg)', opacity: '1' }, '100%': { transform: 'scale(1.5) rotate(180deg)', opacity: '0' } },
+          },
+        },
+      },
+    }
+  </script>
+
+  <!-- Font Awesome para iconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Estilos personalizados -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<!-- =========================================================================
+  En <body> se aplica dark por defecto y se controla vía JS.
+  ========================================================================= -->
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+
+  <!-- =========================================================================
+    BARRA DE NAVEGACIÓN SUPERIOR
+    =========================================================================
+    Contiene: logo, enlaces a vistas, toggle modo oscuro.
+    Se mantiene fija en la parte superior con backdrop blur.
+  ========================================================================= -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 shadow-sm">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+
+        <!-- Logo / título -->
+        <a href="#/" class="flex items-center gap-2 text-xl font-bold text-gray-800 dark:text-white hover:text-primary-500 transition-colors">
+          <span class="text-2xl">⚡</span>
+          <span class="hidden sm:inline">Pokémon Game</span>
+        </a>
+
+        <!-- Enlaces de navegación -->
+        <div class="flex items-center gap-1 sm:gap-2">
+          <a href="#/"         class="nav-link" data-nav>Inicio</a>
+          <a href="#/battle"   class="nav-link" data-nav>Batalla</a>
+          <a href="#/pokedex"  class="nav-link" data-nav>Mi Pokédex</a>
+
+          <!-- Toggle modo oscuro -->
+          <button id="darkToggle" class="ml-2 p-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" aria-label="Alternar modo oscuro">
+            <i id="darkIcon" class="fas fa-moon text-lg"></i>
+          </button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- =========================================================================
+    CONTENEDOR PRINCIPAL
+    =========================================================================
+    Cada vista se renderiza aquí mediante JavaScript.
+    offset-top = 64px para compensar el navbar fijo.
+  ========================================================================= -->
+  <main id="app" class="pt-20 pb-12 min-h-screen">
+    <!-- Spinner de carga inicial -->
+    <div id="loadingSpinner" class="flex justify-center items-center py-20">
+      <div class="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  </main>
+
+  <!-- =========================================================================
+    TOAST NOTIFICATIONS
+    =========================================================================
+    Contenedor para notificaciones emergentes tipo toast.
+  ========================================================================= -->
+  <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- =========================================================================
+    MÓDULOS JAVASCRIPT
+    =========================================================================
+    Se cargan como ES Modules para mantener el código modular y organizado.
+  ========================================================================= -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
