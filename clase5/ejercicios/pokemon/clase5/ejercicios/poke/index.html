@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokefight Arena</title>
+  <script src="./js/vendor/tailwindcdn.js"></script>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="bg-orb orb-a"></div>
+  <div class="bg-orb orb-b"></div>
+
+  <header class="sticky top-0 z-40 backdrop-blur-xl border-b border-white/10 bg-slate-950/60">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <a href="#/" class="brand-title">Pokefight Arena</a>
+      <div class="flex flex-wrap items-center gap-2">
+        <a href="#/" data-nav="home" class="nav-link">Inicio</a>
+        <a href="#/battle" data-nav="battle" class="nav-link">Batalla</a>
+        <a href="#/mypokedex" data-nav="mypokedex" class="nav-link">Mi Pokedex</a>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Cambiar tema"></button>
+      </div>
+    </div>
+  </header>
+
+  <main id="app" class="max-w-7xl mx-auto px-4 py-6 sm:py-8"></main>
+
+  <output id="toast" class="toast" aria-live="polite"></output>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
