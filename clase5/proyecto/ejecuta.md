@@ -70,3 +70,9 @@ sudo bash monitor.sh
 - Las dependencias (TailwindCSS, Font Awesome, PokeAPI) se cargan desde CDN
 - Los Pokémon capturados se guardan en el `localStorage` del navegador
 - Para hacer cambios, solo editar los archivos dentro de `pokemon-game-pokem/` y refrescar el navegador
+
+El archivo ejecuta.md se generó en clase5/proyecto/ejecuta.md con las instrucciones para:
+- 
+Localhost: usar python3 -m http.server 8000 (u otras alternativas como npx serve o php -S)
+- 
+Producción: ejecutar sudo bash monitor.sh (despliegue automatizado con Nginx en Ubuntu)
